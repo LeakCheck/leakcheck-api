@@ -5,7 +5,6 @@
  - Python >= 3.5
  - requests >= 2.23.0
  - pysocks >= 1.7.1
- - json >= 2.0.9
  - setuptools >= 46.1.3
  - wheel >= 0.34.2
 
@@ -68,6 +67,7 @@ To start working with this package you need to obtain personal API key [from her
     api.set_query("leakcheck@aol.com")
     
     # Query prepared. Now we're ready to make our first request
+    # Use with_sources=1 as an argument to see sources of breached entries
     result = api.lookup() # list
 
 ## Response errors:
