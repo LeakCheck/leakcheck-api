@@ -5,11 +5,11 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="leakcheck",
-    version="0.1.2",
+    version="0.1.3",
     py_modules = ('leakcheck',),
     author="LeakCheck",
     author_email="the@leakcheck.net",
-    description="LeakCheck API SDK",
+    description="LeakCheck API",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/LeakCheck/leakcheck-api",
