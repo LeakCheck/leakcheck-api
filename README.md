@@ -26,7 +26,9 @@ Package automatically creates "PyLCAPI.json" file in the working directory on th
 
 ## Using as a CLI:
 
-    usage: leakcheck.py [-h] [--key KEY] [--proxy PROXY] [--endpoint ENDPOINT] [--type TYPE] [-lo] [-p] query
+    usage: leakcheck [-h] [--key KEY] [-m] [--proxy PROXY] [--endpoint ENDPOINT]
+                 [--type TYPE] [-lo] [-p]
+                 query
 
     CLI version of LeakCheck API (v1.0.0). Licensed under MIT license
 
@@ -36,9 +38,10 @@ Package automatically creates "PyLCAPI.json" file in the working directory on th
     optional arguments:
         -h, --help           show this help message and exit
         --key KEY            Set an API key (taken from config by default)
+        -m                   Use mirror (leakcheck.io instead of leakcheck.net, default: False)
         --proxy PROXY        Set proxy (supported: HTTP/HTTPS/SOCKS4/SOCKS5, default: empty)
         --endpoint ENDPOINT  Set an endpoint (default: /)
-        --type TYPE          Set a type of the query (default: auto)
+         --type TYPE          Set a type of the query (default: auto)
         -lo                  Print lines/sources only (useful if you process them later or save, default: False)
         -p                   Lookup privately (hashes data with SHA256, then truncates hash to 24 characters; works for email, pass_email only, default: False)
         
