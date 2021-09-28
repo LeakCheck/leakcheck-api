@@ -20,7 +20,7 @@ Or download tarball / `git clone` and execute
 
 To start working with this package you need to obtain personal API key [from here](https://leakcheck.net/api_s) and link IP address of your server or personal computer. It can be IPv6 as well as IPv4.
 
-Public API can be used without API linking.
+Public API can be used without IP linking.
 
 Package automatically creates "PyLCAPI.json" file in the working directory on the first startup. Then, API key and/or proxy settings can be loaded from there.
 
