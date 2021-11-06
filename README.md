@@ -1,6 +1,6 @@
 # LeakCheck API
 
-![LeakCheck <3 Python](https://i.imgur.com/x35kXcn.png)
+![LeakCheck <3 Python](https://i.imgur.com/G30V91m.png)
 <p align="center">
 <img alt="Discord" src="https://img.shields.io/discord/626798391162175528">
 <img alt="PyPI - Downloads" src="https://img.shields.io/pypi/dm/leakcheck">
