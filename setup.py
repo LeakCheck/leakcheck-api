@@ -16,7 +16,8 @@ setuptools.setup(
     url="https://github.com/LeakCheck/leakcheck-api",
     install_requires=[
           'requests',
-          'pysocks'
+          'pysocks',
+          'tabulate'
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

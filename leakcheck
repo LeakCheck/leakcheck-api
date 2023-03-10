@@ -1,5 +1,13 @@
 #!/usr/bin/env python
+"""
+Copyright (c) 2018-2023 LeakCheck Security Services LTD
+Licensed under MIT license
+Github: https://github.com/LeakCheck/leakcheck-api
+Created with <3
+"""
+
 from leakcheck import LeakCheckAPI
+from tabulate import tabulate
 import hashlib
 import argparse
 import json
@@ -13,12 +21,10 @@ if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='CLI version of LeakCheck API (v{}). Licensed under MIT license'.format(api.getVersion()))
 	
 	parser.add_argument('--key', help='Set an API key (taken from config by default)')
-	parser.add_argument('-m', action='store_true', help='Use mirror (leakcheck.io instead of leakcheck.net, default: False)')
 	parser.add_argument('--proxy', default='', help='Set proxy (supported: HTTP/HTTPS/SOCKS4/SOCKS5, default: empty)')
-	parser.add_argument('--endpoint', default='/', help='Set an endpoint (default: /)')
 	parser.add_argument('--type', default='auto', help='Set a type of the query (default: auto)')
 	parser.add_argument('query', help='What are we going to search?')
-	parser.add_argument('-lo', action='store_true', help='Print lines/sources only (useful if you process them later or save, default: False)')
+	parser.add_argument('-lo', action='store_true', help='Print lines only (default: False')
 	parser.add_argument('-p', action='store_true', help='Lookup privately (hashes data with SHA256, then truncates hash to 24 characters; works for email, pass_email only, default: False)')
 	
 	args = parser.parse_args()
@@ -28,30 +34,38 @@ if __name__ == '__main__':
 	'''
 	if args.key is not None:
 		api.set_key(args.key)
-
-	if args.m == True:
-		api.use_mirror()
-
+	
 	api.set_proxy(args.proxy)
-	api.set_endpoint(args.endpoint)
+
+	query = args.query
+	lookup_type = args.type
 
 	'''
 	Private lookup
 	'''
 	if args.p == True:
 		assert(args.type in ["email", "pass_email"]), "You are going to make a private lookup, but type you selected is unsupported"
-		api.set_query(hashlib.sha256(args.query.encode()).hexdigest()[:24])
-		api.set_type({'email': 'hash', 'pass_email': 'phash'}[args.type])
-		api.set_endpoint("/")
-	else:
-		api.set_query(args.query)
-		api.set_type(args.type)
+		
+		query = hashlib.sha256(args.query.encode()).hexdigest()[:24]
+		lookup_type = {'email': 'hash', 'pass_email': 'phash'}[args.type]
 
 	'''
-	Print lines only
+	Tabulate results or print lines only (-lo)
 	'''
-	if args.endpoint != '/hasbreached' and args.lo == True:
-		for row in api.lookup():
-			print(row[{'/': 'line', '/public': 'name'}[args.endpoint]])
-	else:
-		print(json.dumps(api.lookup(), indent=4))
+	try:
+		results = api.lookup(query, lookup_type)
+		if len(results) > 0:
+			if args.lo == True:
+				for row in results:
+					print(row['line'])
+			else:
+				table = []
+				for row in results:
+					leaked_times = 1 if len(row['sources']) == 0 else len(row['sources'])
+					table.append([leaked_times, row['line'], ", ".join(row['sources']), row['last_breach']])
+				
+				print(tabulate(table, ["Leaked (times)", "Line", "Sources", "Last breach"], tablefmt="psql"))
+		else:
+			print(f"Nothing was found for {query}. You're probably safe!")
+	except AssertionError as e:
+		print(e)

@@ -12,10 +12,11 @@
 ## Dependencies:
 
  - Python >= 3.5
- - requests >= 2.23.0
- - pysocks >= 1.7.1
- - setuptools >= 46.1.3
- - wheel >= 0.34.2
+ - requests
+ - tabulate
+ - pysocks
+ - setuptools
+ - wheel
 
 ## Installation:
 
@@ -35,24 +36,24 @@ Package automatically creates "PyLCAPI.json" file in the working directory on th
 
 ## Using as a CLI:
 
-    usage: leakcheck [-h] [--key KEY] [-m] [--proxy PROXY] [--endpoint ENDPOINT]
-                 [--type TYPE] [-lo] [-p]
+    usage: leakcheck [-h] [--key KEY] [--proxy PROXY] [--type TYPE] [-lo] [-p]
                  query
 
-    CLI version of LeakCheck API (v1.0.0). Licensed under MIT license
+    CLI version of LeakCheck API (v1.0.1). Licensed under MIT license
 
     positional arguments:
-        query                What are we going to search?
+    query          What are we going to search?
 
     optional arguments:
-        -h, --help           show this help message and exit
-        --key KEY            Set an API key (taken from config by default)
-        -m                   Use mirror (leakcheck.io instead of leakcheck.net, default: False)
-        --proxy PROXY        Set proxy (supported: HTTP/HTTPS/SOCKS4/SOCKS5, default: empty)
-        --endpoint ENDPOINT  Set an endpoint (default: /)
-         --type TYPE          Set a type of the query (default: auto)
-        -lo                  Print lines/sources only (useful if you process them later or save, default: False)
-        -p                   Lookup privately (hashes data with SHA256, then truncates hash to 24 characters; works for email, pass_email only, default: False)
+    -h, --help     show this help message and exit
+    --key KEY      Set an API key (taken from config by default)
+    --proxy PROXY  Set proxy (supported: HTTP/HTTPS/SOCKS4/SOCKS5, default:
+                    empty)
+    --type TYPE    Set a type of the query (default: auto)
+    -lo            Print lines only (default: False
+    -p             Lookup privately (hashes data with SHA256, then truncates
+                    hash to 24 characters; works for email, pass_email only,
+                    default: False)
         
 ## Using as a library:
 
@@ -64,24 +65,18 @@ Package automatically creates "PyLCAPI.json" file in the working directory on th
     # API key setting
     api.set_key("YOUR_KEY")
     
-    # Type setting
-    api.set_type("email")
-    # Or login / mass / etc
+    # Now we're ready to make our first request
+    # A lookup type is detected automatically. To explicitly set it, see below
+    result = api.lookup("example@example.com") # list of dicts
 
-    # Search setting
-    api.set_query("example@example.com")
-    
-    # Query prepared. Now we're ready to make our first request
-    result = api.lookup() # list of dicts
+    # A request with the lookup type
+    result = api.lookup("example@example.com", "email") # list of dicts
 
-## Using mirror or proxy:
+## Using a proxy:
 
     # HTTP/HTTPS/SOCKS4/SOCKS5 supported
     # Handled by requests[proxy], requests[socks]
     api.set_proxy("socks5://127.0.0.1:8123")
-    
-    # This will use leakcheck.io instead of leakcheck.net
-    api.use_mirror()
 
 ## Getting your IP:
 

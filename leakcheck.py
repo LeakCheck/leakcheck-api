@@ -1,10 +1,17 @@
+"""
+Copyright (c) 2018-2023 LeakCheck Security Services LTD
+Licensed under MIT license
+Github: https://github.com/LeakCheck/leakcheck-api
+Created with <3
+"""
+
 import requests
 import sys
 import platform
 import os.path
 import json
 
-version = "1.0.0"
+version = "1.0.1"
 
 class LeakCheckAPI:
 	'''
@@ -18,10 +25,7 @@ class LeakCheckAPI:
 	def __init__(self):
 		self.cfgname = "PyLCAPI.json"
 		self.config = self.__getCfg()
-		self.url = "https://leakcheck.net"
-		self.type = "auto"
-		self.query = ""
-		self.endpoint = "/"
+		self.url = "https://leakcheck.io"
 		self.key = self.config.get("key")
 		self.proxy = self.config.get("proxy")
 
@@ -39,26 +43,12 @@ class LeakCheckAPI:
 				return data
 
 	'''
-	Function to set a secondary domain as main
-	'''
-	def use_mirror(self):
-		self.url = "https://leakcheck.io"
-
-	'''
 	Function to set a proxy
 	HTTP/HTTPS/SOCKS4/SOCKS5 supported
 	Handled by requests[socks], requests[proxy]
 	'''
 	def set_proxy(self, proxy):
 		self.proxy = proxy
-
-	'''
-	Function to set an endpoint
-	/ for extended API, /public for public API
-	Defaults to /
-	'''
-	def set_endpoint(self, endpoint):
-		self.endpoint = endpoint
 
 	'''
 	Function to set an API key
@@ -69,28 +59,14 @@ class LeakCheckAPI:
 		self.key = key
 
 	'''
-	Function to set a query type
-	Defaults to auto
-	'''
-	def set_type(self, type):
-		self.type = type
-
-	'''
-	Function to set a query
-	'''
-	def set_query(self, query):
-		self.query = query
-
-	'''
 	Main function
 	Sends a request to the server after everything else is prepared
 	''' 
-	def lookup(self):
+	def lookup(self, query, lookup_type = "auto"):
 		assert(self.key != ""), "Key is missing, use LeakCheckAPI.set_key() or specify it in config"
-		assert(self.query != ""), "Query is missing, use LeakCheckAPI.set_query()"
 
-		data = {'key': self.key, 'type': self.type, "check": self.query}
-		request = requests.get(self.url + "/api" + self.endpoint,
+		data = {'key': self.key, 'type': lookup_type, "check": query}
+		request = requests.get(self.url + "/api",
 			data, 
 			headers = self.headers,
 			proxies = {'https': self.proxy}
@@ -104,7 +80,7 @@ class LeakCheckAPI:
 			assert (result.get("error") == "Not found"), request.json().get("error")
 			return []
 		else:
-			return result.get({'/': 'result', '/public': 'sources', '/hasbreached': 'breached'}[self.endpoint])
+			return result.get("result")
 	
 	'''
 	Function to get your account limits
