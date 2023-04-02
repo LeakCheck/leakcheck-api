@@ -62,6 +62,7 @@ class LeakCheckAPI:
 	'''
 	Main function
 	Sends a request to the server after everything else is prepared
+	* since 1.0.1: query and lookup type now passed via function parameters
 	''' 
 	def lookup(self, query, lookup_type = "auto"):
 		assert(self.key != ""), f"A key is missing, use LeakCheckAPI.set_key() or specify it in config ({self.cfgpath})"
