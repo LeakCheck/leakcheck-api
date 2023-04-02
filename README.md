@@ -39,7 +39,7 @@ Package automatically creates "PyLCAPI.json" file in the working directory on th
     usage: leakcheck [-h] [--key KEY] [--proxy PROXY] [--type TYPE] [-lo] [-p]
                  query
 
-    CLI version of LeakCheck API (v1.0.1). Licensed under MIT license
+    CLI version of LeakCheck API (v1.0.2). Licensed under MIT license
 
     positional arguments:
     query          What are we going to search?
