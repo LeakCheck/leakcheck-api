@@ -11,7 +11,7 @@ import platform
 import os.path
 import json
 
-version = "1.0.1"
+version = "1.0.2"
 
 class LeakCheckAPI:
 	'''
@@ -23,7 +23,8 @@ class LeakCheckAPI:
 	Set initial variables
 	'''
 	def __init__(self):
-		self.cfgname = "PyLCAPI.json"
+		self.cfgname = ".pylcapi"
+		self.cfgpath = os.path.expanduser('~') + "/" + self.cfgname
 		self.config = self.__getCfg()
 		self.url = "https://leakcheck.io"
 		self.key = self.config.get("key")
@@ -31,13 +32,14 @@ class LeakCheckAPI:
 
 	'''
 	Load or create a config file with an API key and proxy
+	* since 1.0.2: created inside a home folder instead of a working directory
 	'''
 	def __getCfg(self):
-		if os.path.isfile(self.cfgname):
-			with open(self.cfgname) as cfg:
+		if os.path.isfile(self.cfgpath):
+			with open(self.cfgpath) as cfg:
 				return json.load(cfg)
 		else:
-			with open(self.cfgname, 'w') as cfg:
+			with open(self.cfgpath, 'w') as cfg:
 				data = {'key': '', 'proxy': ''}
 				json.dump(data, cfg)
 				return data
@@ -52,10 +54,9 @@ class LeakCheckAPI:
 
 	'''
 	Function to set an API key
-	Public key can be also used here
 	'''
 	def set_key(self, key):
-		assert (len(key) == 40), "set_key returned an exception: key is invalid, it must be 40 characters long"
+		assert (len(key) == 40), "A key is invalid, it must be 40 characters long"
 		self.key = key
 
 	'''
@@ -63,7 +64,7 @@ class LeakCheckAPI:
 	Sends a request to the server after everything else is prepared
 	''' 
 	def lookup(self, query, lookup_type = "auto"):
-		assert(self.key != ""), "Key is missing, use LeakCheckAPI.set_key() or specify it in config"
+		assert(self.key != ""), f"A key is missing, use LeakCheckAPI.set_key() or specify it in config ({self.cfgpath})"
 
 		data = {'key': self.key, 'type': lookup_type, "check": query}
 		request = requests.get(self.url + "/api",
@@ -73,7 +74,7 @@ class LeakCheckAPI:
 		)
 
 		status_code = request.status_code
-		assert (status_code == 200), "lookup returned an exception: invalid response code ({}) instead of 200".format(status_code)
+		assert (status_code == 200), f"Invalid response code ({status_code}) instead of 200"
 		
 		result = request.json()
 		if result.get("success") == False:
@@ -86,7 +87,7 @@ class LeakCheckAPI:
 	Function to get your account limits
 	'''
 	def getLimits(self):
-		assert (self.key != ""), "Key is missing, use LeakCheckAPI.set_key() or specify it in config"
+		assert (self.key != ""), f"A key is missing, use LeakCheckAPI.set_key() or specify it in config ({self.cfgpath})"
 
 		data = {'key': self.key, 'type': 'limits'}
 		request = requests.get(self.url + "/api",

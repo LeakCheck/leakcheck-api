@@ -51,6 +51,7 @@ if __name__ == '__main__':
 
 	'''
 	Tabulate results or print lines only (-lo)
+	* since 1.0.1: results are prettified and printed as a table by default
 	'''
 	try:
 		results = api.lookup(query, lookup_type)
