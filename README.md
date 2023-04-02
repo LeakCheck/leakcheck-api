@@ -32,7 +32,7 @@ To start working with this package you need to obtain personal API key [from her
 
 Public API can be used without IP linking.
 
-Package automatically creates "PyLCAPI.json" file in the working directory on the first startup. Then, API key and/or proxy settings can be loaded from there.
+Package automatically creates ".pylcapi" file in the home directory on the first startup. Then, API key and/or proxy settings can be loaded from there.
 
 ## Using as a CLI:
 
