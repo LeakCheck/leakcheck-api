@@ -1,6 +1,13 @@
 # LeakCheck API Python Wrapper v2.0.0
 
 This Python wrapper allows you to interact with the LeakCheck API for checking leaked data using the official API. It includes support for both the private (authenticated) API and the public (unauthenticated) API endpoints. This wrapper has been updated to work with API v2.
+<p align="center">
+<img alt="Discord" src="https://img.shields.io/discord/626798391162175528">
+<img alt="PyPI - Downloads" src="https://img.shields.io/pypi/dm/leakcheck">
+<img alt="PyPI" src="https://img.shields.io/pypi/v/leakcheck">
+<img alt="Uptime Robot ratio (30 days)" src="https://img.shields.io/uptimerobot/ratio/m787582856-3411c8623fccb7e99d3dfc1f">
+<img alt="GitHub" src="https://img.shields.io/github/license/leakcheck/leakcheck-api">
+</p>
 
 ## Features
 
