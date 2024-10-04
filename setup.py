@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="leakcheck",
-    version="1.0.2",
+    version="2.0.0",
     py_modules = ('leakcheck',),
     scripts=['leakcheck'],
     author="LeakCheck",

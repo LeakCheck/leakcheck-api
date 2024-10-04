@@ -1,72 +1,99 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
-Copyright (c) 2018-2023 LeakCheck Security Services LTD
+Copyright (c) 2018-2024 LeakCheck Security Services LTD
 Licensed under MIT license
 Github: https://github.com/LeakCheck/leakcheck-api
 Created with <3
 """
 
-from leakcheck import LeakCheckAPI
-from tabulate import tabulate
-import hashlib
 import argparse
+import sys
+import os
 import json
+from leakcheck import LeakCheckAPI_v2, LeakCheckAPI_Public
+from tabulate import tabulate
 
-if __name__ == '__main__':
-	'''
-	Initialize API
-	'''
-	api = LeakCheckAPI()
+version = "2.0.0"
 
-	parser = argparse.ArgumentParser(description='CLI version of LeakCheck API (v{}). Licensed under MIT license'.format(api.getVersion()))
-	
-	parser.add_argument('--key', help='Set an API key (taken from config by default)')
-	parser.add_argument('--proxy', default='', help='Set proxy (supported: HTTP/HTTPS/SOCKS4/SOCKS5, default: empty)')
-	parser.add_argument('--type', default='auto', help='Set a type of the query (default: auto)')
-	parser.add_argument('query', help='What are we going to search?')
-	parser.add_argument('-lo', action='store_true', help='Print lines only (default: False')
-	parser.add_argument('-p', action='store_true', help='Lookup privately (hashes data with SHA256, then truncates hash to 24 characters; works for email, pass_email only, default: False)')
-	
-	args = parser.parse_args()
+def main():
+    parser = argparse.ArgumentParser(description="LeakCheck CLI Tool")
+    parser.add_argument("query", help="The value to search for (email, username, etc.)")
+    parser.add_argument("--type", "-t", help="Type of query (email, username, etc.). Will be auto-detected if not provided.")
+    parser.add_argument("--limit", "-l", type=int, default=100, help="Limit the number of results (max 1000, default 100)")
+    parser.add_argument("--offset", "-o", type=int, default=0, help="Offset the results (max 2500, default 0)")
+    parser.add_argument("--public", "-p", action="store_true", help="Use the public API instead of the authenticated API.")
+    parser.add_argument("--api-key", help="API key to authenticate with the LeakCheck service. If not provided, will attempt to read from environment variable.")
+    parser.add_argument("--proxy", help="Optional proxy to use for the requests (HTTP, HTTPS, SOCKS5 supported). If not provided, will attempt to read from environment variable.")
+    parser.add_argument("--pretty", action="store_true", help="Display prettified JSON output instead of a table.")
+    
+    args = parser.parse_args()
 
-	'''
-	Some bindings
-	'''
-	if args.key is not None:
-		api.set_key(args.key)
-	
-	api.set_proxy(args.proxy)
+    # Load API key from environment variable if not provided as argument
+    api_key = args.api_key or os.getenv("LEAKCHECK_APIKEY")
 
-	query = args.query
-	lookup_type = args.type
+    # Check if public API or private API should be used
+    if args.public:
+        api = LeakCheckAPI_Public()
+    else:
+        try:
+            api = LeakCheckAPI_v2(api_key=api_key)
+        except ValueError as e:
+            print(f"Error: {str(e)}")
+            sys.exit(1)
 
-	'''
-	Private lookup
-	'''
-	if args.p == True:
-		assert(args.type in ["email", "pass_email"]), "You are going to make a private lookup, but type you selected is unsupported"
-		
-		query = hashlib.sha256(args.query.encode()).hexdigest()[:24]
-		lookup_type = {'email': 'hash', 'pass_email': 'phash'}[args.type]
+    # Set proxy if provided or from environment variable
+    proxy = args.proxy or os.getenv("LEAKCHECK_PROXY")
+    if proxy:
+        api.set_proxy(proxy)
 
-	'''
-	Tabulate results or print lines only (-lo)
-	* since 1.0.1: results are prettified and printed as a table by default
-	'''
-	try:
-		results = api.lookup(query, lookup_type)
-		if len(results) > 0:
-			if args.lo == True:
-				for row in results:
-					print(row['line'])
-			else:
-				table = []
-				for row in results:
-					leaked_times = 1 if len(row['sources']) == 0 else len(row['sources'])
-					table.append([leaked_times, row['line'], ", ".join(row['sources']), row['last_breach']])
-				
-				print(tabulate(table, ["Leaked (times)", "Line", "Sources", "Last breach"], tablefmt="psql"))
-		else:
-			print(f"Nothing was found for {query}. You're probably safe!")
-	except AssertionError as e:
-		print(e)
+    # Perform the lookup query
+    try:
+        if args.public:
+            # For public API, only the query is needed
+            result = api.lookup(args.query)
+        else:
+            # For authenticated API, more parameters can be provided
+            result = api.lookup(query=args.query, query_type=args.type, limit=args.limit, offset=args.offset)
+    except ValueError as e:
+        print(f"Error: {str(e)}")
+        sys.exit(1)
+
+    # Print the results
+    if result:
+        if args.public and isinstance(result, dict) and result.get("success"):
+            if not args.pretty and "fields" in result and result["fields"]:
+                print(f"Sensitive data found: {', '.join(result['fields'])}")
+            if "sources" in result and isinstance(result["sources"], list) and len(result["sources"]) > 0:
+                if args.pretty:
+                    print(json.dumps(result, indent=4))
+                else:
+                    headers = ["name", "date"]
+                    rows = [[source.get("name", "N/A"), source.get("date", "N/A")] for source in result["sources"]]
+                    print(tabulate(rows, headers=headers, tablefmt="grid"))
+            else:
+                print("No results found.")
+        elif isinstance(result, list) and len(result) > 0:
+            if args.pretty:
+                print(json.dumps(result, indent=4))
+            else:
+                headers = list(result[0].keys())
+                headers.remove("fields")
+                rows = []
+                for item in result:
+                    source_name = item["source"]["name"] if isinstance(item["source"], dict) else item["source"]
+                    rows.append([source_name if key == 'source' else item.get(key, "N/A") for key in headers])
+                    # Append extra fields if available
+                    extra_fields = item.get('fields')
+                    if extra_fields and isinstance(extra_fields, list):
+                        for field in extra_fields:
+                            if field not in headers:
+                                headers.append(field)
+                                rows[-1].append(item.get(field, "N/A"))
+                print(tabulate(rows, headers=headers, tablefmt="grid"))
+        else:
+            print("No results found.")
+    else:
+        print("No results found.")
+
+if __name__ == "__main__":
+    main()
