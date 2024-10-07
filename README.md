@@ -13,7 +13,7 @@ This Python wrapper allows you to interact with the LeakCheck API for checking l
 
 - Lookup email addresses, usernames, and other identifiers against leaked databases.
 - Supports both the **private API v2** (authenticated via API key) and the **public API**.
-- Proxy support for both HTTP and HTTPS queries.
+- HTTP/SOCKS proxy support.
 - Customizable request limits and offsets for paginated queries.
 
 ## Installation
@@ -95,6 +95,39 @@ api.set_proxy("http://proxy.example.com:8080")
 
 # Set proxy for public API
 public_api.set_proxy("http://proxy.example.com:8080")
+```
+
+## CLI Usage
+
+This package also includes a command-line interface (CLI) tool for querying the LeakCheck API directly from your terminal.
+
+### Example CLI Usage:
+
+```bash
+leakcheck "example@example.com" --type email --limit 50 --api-key your_api_key_here
+```
+
+#### CLI Help Menu
+
+```bash
+usage: leakcheck [-h] [--type TYPE] [--limit LIMIT] [--offset OFFSET] [--public] [--api-key API_KEY] [--proxy PROXY] [--pretty] query
+
+LeakCheck CLI Tool
+
+positional arguments:
+  query                 The value to search for (email, username, etc.)
+
+options:
+  -h, --help            show this help message and exit
+  --type TYPE, -t TYPE  Type of query (email, username, etc.). Will be auto-detected if not provided.
+  --limit LIMIT, -l LIMIT
+                        Limit the number of results (max 1000, default 100)
+  --offset OFFSET, -o OFFSET
+                        Offset the results (max 2500, default 0)
+  --public, -p          Use the public API instead of the authenticated API.
+  --api-key API_KEY     API key to authenticate with the LeakCheck service. If not provided, will attempt to read from environment variable.
+  --proxy PROXY         Optional proxy to use for the requests (HTTP, HTTPS, SOCKS5 supported). If not provided, will attempt to read from environment variable.
+  --pretty              Display prettified JSON output instead of a table.
 ```
 
 ## Accepted Data Types for Lookup Queries
@@ -180,3 +213,12 @@ This wrapper supports **LeakCheck API v2**.
 ## License
 
 This project is licensed under the MIT License.
+
+## Sponsors
+
+<p align="center">
+  <a href="https://aeza.net/">
+    <img src="https://aeza.net/_next/static/media/logo.25e02724.svg" alt="Aeza Hosting" width="200">
+  </a>
+  <p align="center">Aeza Hosting - For providing powerful dedicated servers</p>
+</p>
