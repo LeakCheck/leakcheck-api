@@ -33,7 +33,7 @@ To use the private API, you need an API key from LeakCheck. You can pass the API
 #### Example:
 
 ```python
-from leakcheck_api import LeakCheckAPI_v2
+from leakcheck import LeakCheckAPI_v2
 
 # Initialize with API key (or set LEAKCHECK_APIKEY in environment variables)
 api = LeakCheckAPI_v2(api_key='your_api_key_here')
@@ -70,7 +70,7 @@ The public API does not require authentication but offers limited access. You ca
 #### Example:
 
 ```python
-from leakcheck_api import LeakCheckAPI_Public
+from leakcheck import LeakCheckAPI_Public
 
 # Initialize without an API key
 public_api = LeakCheckAPI_Public()
